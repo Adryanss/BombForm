@@ -24,7 +24,7 @@ async def testar_login(user, senha):
             resp = await client.post(url=url_test, data=data, headers=headers)
 
             print(f"\n🔎 TESTANDO: {user}:{senha}")
-            print(f"📥 STATUS: {resp.status_code}")
+            print(f"STATUS: {resp.status_code}")
             
             if error_page.lower() in resp.text.lower() or error_page.lower() in str(resp.url).lower():
                 print(f"login invalido: {user} and {senha}")
