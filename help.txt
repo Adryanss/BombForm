@@ -1,0 +1,13 @@
+help - ajuda
+headers - headers page
+post - post page
+emsg - mensagem de erro da pagina
+url - url / ip da pagina
+door - porta da pagina
+pis - senha no site
+uis - usuario no site
+user - parametro pra passar a wordlist de usuario
+passw - parametro pra passar a wordlist de senha
+
+start - inicia o programa
+!pass - finaliza o programa
