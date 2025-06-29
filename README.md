@@ -1,69 +1,153 @@
 OBS:Ferramenta está em fase de testes!!
 
+---
 
-# 💣 BOMBFORM
+💣 JohnPass
 
-> Automação assíncrona de brute force em formulários HTTP  
-> Asynchronous brute force automation on HTTP forms
+> Brute force assíncrono para formulários HTTP com foco em performance e personalização
+Asynchronous brute-force automation on HTTP login forms
+
+
+
 
 ---
 
-## 🧠 Descrição | Description
+🧠 Descrição | Description
 
-**BOMBFORM** é uma ferramenta feita no **ódio e na lógica**, com foco em performance e automação real de brute force em formulários web.  
-Funciona testando milhares/milhões de combinações de usuários e senhas de forma assíncrona, usando `httpx` + `asyncio` pra velocidade absurda.
-Desenvolvida como estudo de automação ofensiva, manipulação de requisições POST e identificação de respostas via redirecionamento ou frase de erro.
+JohnPass é uma ferramenta de brute-force web criada com foco em performance, estrutura limpa e lógica ofensiva realista.
+Trabalha testando combinações massivas de usuário e senha em formulários HTTP via requisições assíncronas (httpx + asyncio).
+Desenvolvido como parte de estudo de automação ofensiva e como prova de conceito para análise de respostas HTTP em ambientes de laboratório.
+
+> Feita no ódio, café e lógica. Refinada com leitura de código, erros e tentativas.
+
+
+
 
 ---
 
-## 🚀 Requisitos | Requirements
-- Python 3.10+
-- httpx
+🚀 Requisitos | Requirements
 
-Instalação:
+Python 3.10 ou superior
 
-```bash
-pip install httpx
+httpx (pip install httpx)
 
-⚙️ Como usar | How to use
-    Crie um arquivo combos.txt com a estrutura:
 
-usuario1:senha1
-usuario2:senha2
-...
 
-    Rode o script:
+---
+
+⚙️ Como Usar | How to Use
+
+1. Execute o script:
+
+
 
 python main.py
-    Preencha as infos:
-    URL do formulário (ex: http://zero.webappsecurity.com/login.html)
-    Indicador de erro (ex: login_error=true ou trecho da frase de erro)
 
-💡 Funcionamento | How it works
-    Leitura assíncrona das combinações (user:pass)
-    Envio massivo de POSTs com cabeçalhos e payloads configuráveis
-    Detecção de erro por frase ou URL (resposta do servidor)
-    Salva os logins válidos no logs.txt
+2. Siga o assistente interativo:
 
-🧱 Melhorias previstas
+Digite os comandos url, user, passw, headers, emsg etc.
 
-Suporte a proxy rotativo
-Análise automática dos campos do form
-Regex para detectar mensagens de erro
-Export em CSV
+Ou use o modo DEBUG para preencher com configurações padrão (ideal pra testes locais).
 
-⚠️ Disclaimer
 
-    Esta ferramenta foi desenvolvida para fins educacionais e laboratoriais.
-    O uso em sistemas sem autorização pode ser ilegal.
-    O autor não se responsabiliza por qualquer uso indevido.
+
+3. Inicie o ataque:
+
+
+
+>> start
+
+4. Resultados possíveis:
+
+Resposta HTTP 302 (redirecionamento)
+
+Ausência da frase de erro → possível sucesso
+
+Credenciais válidas salvas em logs.txt
+
+
+
+
+
+---
+
+🧠 Funcionalidades | Features
+
+Teste assíncrono de múltiplas combinações de user:pass
+
+Detecção de sucesso por:
+
+Redirecionamento (302 Found)
+
+Ausência de mensagem de erro configurável
+
+
+Headers personalizados (User-Agent, Content-Type)
+
+Wordlists customizadas ou padrão (fallback)
+
+Portas configuráveis
+
+Suporte a arquivos door.txt, loginspad.txt, senhaspad.txt
+
+
+
+---
+
+💡 Funcionamento Interno
+
+Lê campos de usuário/senha do HTML manualmente ou por entrada do usuário
+
+Permite testes com wordlists personalizadas ou automáticas
+
+Dispara centenas de requisições POST simultâneas usando httpx.AsyncClient
+
+Identifica potenciais sucessos com base no conteúdo da resposta
+
+Salva hits em logs.txt para revisão posterior
+
+
+
+---
+
+🧱 Melhorias Futuras
+
+Integração com proxies e rotação automática
+
+Análise de formulários com parsing HTML (BeautifulSoup ou lxml)
+
+Detecção automática de campos de login/senha
+
+Regex para identificar respostas variadas
+
+Exportação em CSV e relatório resumido
+
+Modo CLI com argparse
+
+
+
+---
+
+⚠️ Aviso Legal | Legal Notice
+
+> Esta ferramenta foi desenvolvida para fins educacionais e laboratoriais.
+O uso em sistemas sem autorização prévia pode ser considerado ilegal.
+O autor não se responsabiliza por qualquer uso indevido.
+
+
 
 This tool is intended only for educational and research purposes.
 Use without authorization may be considered illegal.
-The author is not responsible for misuse.
+The author is not responsible for any misuse or abuse.
 
+
+---
 
 👑 Autor | Author
-Desenvolvido por @Adryanss
 
+Desenvolvido por @Adryanss
 🔥 Powered by Adryan Underground
+🎯 Alvo: Transição de carreira para Segurança da Informação
+
+
+---
