@@ -138,7 +138,7 @@ def user ():
         if u == "!pass":
             try:
                 with open("loginspad.txt", "r", encoding=("utf-8"), errors="ignore") as log_padrao:
-                    testar_log = [linha.strip() for linha in log_padrao if linha.strip()] #define linha como var no for, remove os espaços e \n e o if valida se foi removido de verdade.
+                    testar_log = [linha.strip() for linha in log_padrao if linha.strip()]
                     print("Wordlist username padrao selecionada!")
                     return testar_log
             except FileNotFoundError:
